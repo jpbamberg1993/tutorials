@@ -1,21 +1,46 @@
 package main
 
 func Sum(nums []int) int {
-	sum := 0
-	for _, num := range nums {
-		sum += num
+	add := func(acc, x int) int {
+		return acc + x
 	}
-	return sum
+	return Reduce(nums, add, 0)
 }
 
 func SumAllTails(numbersToSum ...[]int) []int {
-	var sums []int
-	for _, ints := range numbersToSum {
+	sumTail := func(acc, ints []int) []int {
 		if len(ints) == 0 {
-			sums = append(sums, 0)
+			return append(acc, 0)
 		} else {
-			sums = append(sums, Sum(ints[1:]))
+			return append(acc, Sum(ints[1:]))
 		}
 	}
-	return sums
+	return Reduce(numbersToSum, sumTail, []int{})
+}
+
+func Reduce[A any](collection []A, f func(A, A) A, initialValue A) A {
+	var result = initialValue
+	for _, x := range collection {
+		result = f(result, x)
+	}
+	return result
+}
+
+type Transaction struct {
+	From string
+	To   string
+	Sum  float64
+}
+
+func BalanceFor(transactions []Transaction, name string) float64 {
+	var balance float64
+	for _, t := range transactions {
+		if t.To == name {
+			balance += t.Sum
+		}
+		if t.From == name {
+			balance -= t.Sum
+		}
+	}
+	return balance
 }
