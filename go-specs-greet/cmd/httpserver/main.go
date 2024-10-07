@@ -1,15 +1,13 @@
 package main
 
 import (
-	"fmt"
+	gospecsgreet "github.com/jpbamberg1993/go-specs-greet"
 	"log"
 	"net/http"
 )
 
 func main() {
-	handler := http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
-		fmt.Fprintf(writer, "Hello, world")
-	})
+	handler := http.HandlerFunc(gospecsgreet.Handler)
 	if err := http.ListenAndServe(":8080", handler); err != nil {
 		log.Fatal(err)
 	}

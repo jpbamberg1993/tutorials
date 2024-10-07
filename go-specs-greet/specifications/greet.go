@@ -6,11 +6,11 @@ import (
 )
 
 type Greeter interface {
-	Greet() (string, error)
+	Greet(name string) (string, error)
 }
 
 func GreetSpecification(t testing.TB, greeter Greeter) {
-	got, err := greeter.Greet()
+	got, err := greeter.Greet("Paul")
 	assert.NoError(t, err)
-	assert.Equal(t, "Hello, world", got)
+	assert.Equal(t, "Hello, Paul", got)
 }
