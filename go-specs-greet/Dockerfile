@@ -2,12 +2,14 @@ FROM golang:1.23-alpine
 
 WORKDIR /app
 
+ARG bin_to_build
+
 COPY go.mod ./
 
 RUN go mod download
 
 COPY . .
 
-RUN go build -o svr cmd/httpserver/main.go
+RUN go build -o svr cmd/${bin_to_build}/*.go
 
 CMD [ "./svr" ]
