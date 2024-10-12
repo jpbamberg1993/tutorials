@@ -7,8 +7,9 @@ import (
 )
 
 func main() {
-	handler := http.HandlerFunc(httpserver.Handler)
-	if err := http.ListenAndServe(":8080", handler); err != nil {
+	http.HandleFunc("/greet", httpserver.Handler)
+	http.HandleFunc("/curse", httpserver.CurseHandler)
+	if err := http.ListenAndServe(":8080", nil); err != nil {
 		log.Fatal(err)
 	}
 }

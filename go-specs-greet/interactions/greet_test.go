@@ -8,3 +8,7 @@ import (
 func TestGreet(t *testing.T) {
 	specifications.GreetSpecification(t, specifications.GreetAdapter(Greet))
 }
+
+func TestCurse(t *testing.T) {
+	specifications.CurseSpecification(t, specifications.CurseAdapter(Curse))
+}

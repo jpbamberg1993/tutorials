@@ -10,7 +10,7 @@ type Driver struct {
 	Client  *http.Client
 }
 
-func (d Driver) Greet(name string) (string, error) {
+func (d *Driver) Greet(name string) (string, error) {
 	res, err := http.Get(d.BaseURL + "/greet?name=" + name)
 	if err != nil {
 		return "", err
@@ -19,6 +19,19 @@ func (d Driver) Greet(name string) (string, error) {
 	greeting, err := io.ReadAll(res.Body)
 	if err != nil {
 		return "", err
+	}
+	return string(greeting), nil
+}
+
+func (d *Driver) Curse(name string) (string, error) {
+	res, err := http.Get(d.BaseURL + "/curse?name=" + name)
+	if err != nil {
+		return "", err
+	}
+	defer res.Body.Close()
+	greeting, err := io.ReadAll(res.Body)
+	if err != nil {
+		return "", nil
 	}
 	return string(greeting), nil
 }

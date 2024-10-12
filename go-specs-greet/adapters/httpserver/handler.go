@@ -10,3 +10,8 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	name := r.URL.Query().Get("name")
 	fmt.Fprintf(w, "%s", interactions.Greet(name))
 }
+
+func CurseHandler(w http.ResponseWriter, r *http.Request) {
+	name := r.URL.Query().Get("name")
+	fmt.Fprintf(w, "%s", interactions.Curse(name))
+}
