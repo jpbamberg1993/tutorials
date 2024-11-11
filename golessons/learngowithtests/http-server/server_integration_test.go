@@ -7,17 +7,33 @@ import (
 )
 
 func TestRecordingWinsAndRetrievingTheme(t *testing.T) {
-	store := NewInMemoryPlayerStore()
-	server := PlayerServer{store}
+	database, cleanDatabase := createTempFile(t, "")
+	defer cleanDatabase()
+	store := &FilesystemPlayerStore{database}
+	server := NewPlayerServer(store)
 	player := "Pepper"
 
 	server.ServeHTTP(httptest.NewRecorder(), newPostWinRequest(player))
 	server.ServeHTTP(httptest.NewRecorder(), newPostWinRequest(player))
 	server.ServeHTTP(httptest.NewRecorder(), newPostWinRequest(player))
 
-	res := httptest.NewRecorder()
-	server.ServeHTTP(res, newGetScoreRequest(player))
-	assertStatus(t, res.Code, http.StatusOK)
+	t.Run("get score", func(t *testing.T) {
+		res := httptest.NewRecorder()
+		server.ServeHTTP(res, newGetScoreRequest(player))
+		assertStatus(t, res.Code, http.StatusOK)
 
-	assertResponseBody(t, res.Body.String(), "3")
+		assertResponseBody(t, res.Body.String(), "3")
+	})
+
+	t.Run("get league", func(t *testing.T) {
+		res := httptest.NewRecorder()
+		server.ServeHTTP(res, newLeagueRequest())
+		assertStatus(t, res.Code, http.StatusOK)
+
+		got := getLeagueFromRequest(t, res)
+		want := []Player{
+			{"Pepper", 3},
+		}
+		assertLeague(t, got, want)
+	})
 }
