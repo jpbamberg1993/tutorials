@@ -1,15 +1,18 @@
 package main
 
 import (
+	"jpbamberg1993/learngowithtests/gracefulshutdown/assert"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 )
 
 func TestRecordingWinsAndRetrievingTheme(t *testing.T) {
-	database, cleanDatabase := createTempFile(t, "")
+	database, cleanDatabase := createTempFile(t, `[]`)
 	defer cleanDatabase()
-	store := &FilesystemPlayerStore{database}
+	store, err := NewFilesystemPlayStore(database)
+	assert.NoError(t, err)
+
 	server := NewPlayerServer(store)
 	player := "Pepper"
 
