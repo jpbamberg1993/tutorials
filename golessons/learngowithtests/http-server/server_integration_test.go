@@ -1,4 +1,4 @@
-package main
+package poker
 
 import (
 	"jpbamberg1993/learngowithtests/gracefulshutdown/assert"
@@ -28,7 +28,7 @@ func TestRecordingWinsAndRetrievingTheme(t *testing.T) {
 		assertResponseBody(t, res.Body.String(), "3")
 	})
 
-	t.Run("get league", func(t *testing.T) {
+	t.Run("get League", func(t *testing.T) {
 		res := httptest.NewRecorder()
 		server.ServeHTTP(res, newLeagueRequest())
 		assertStatus(t, res.Code, http.StatusOK)

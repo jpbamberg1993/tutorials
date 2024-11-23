@@ -1,4 +1,4 @@
-package main
+package poker
 
 import (
 	"encoding/json"
@@ -9,27 +9,9 @@ import (
 	"testing"
 )
 
-type StubPlayStore struct {
-	scores   map[string]int
-	winCalls []string
-	league   []Player
-}
-
-func (s *StubPlayStore) GetPlayerScore(name string) int {
-	return s.scores[name]
-}
-
-func (s *StubPlayStore) RecordWin(name string) {
-	s.winCalls = append(s.winCalls, name)
-}
-
-func (s *StubPlayStore) GetLeague() League {
-	return s.league
-}
-
 func TestGETPlayers(t *testing.T) {
 	store := StubPlayStore{
-		scores: map[string]int{
+		Scores: map[string]int{
 			"Pepper":  20,
 			"Ronaldo": 10,
 		},
@@ -94,20 +76,26 @@ func TestStoreWins(t *testing.T) {
 
 		server.ServeHTTP(response, request)
 
-		if len(store.winCalls) != 1 {
-			t.Errorf("got %d calls to RecordWin but wanted %d", len(store.winCalls), 1)
-			return
-		}
-
-		if store.winCalls[0] != player {
-			t.Errorf("did not store correct winner got %q want %q", store.winCalls[0], player)
-			return
-		}
+		AssertPlayerWin(t, store, player)
 	})
 }
 
+func AssertPlayerWin(t *testing.T, store *StubPlayStore, player string) {
+	t.Helper()
+
+	if len(store.WinCalls) != 1 {
+		t.Errorf("got %d calls to RecordWin but wanted %d", len(store.WinCalls), 1)
+		return
+	}
+
+	if store.WinCalls[0] != player {
+		t.Errorf("did not store correct winner got %q want %q", store.WinCalls[0], player)
+		return
+	}
+}
+
 func TestLeague(t *testing.T) {
-	t.Run("it returns 200 on /league", func(t *testing.T) {
+	t.Run("it returns 200 on /League", func(t *testing.T) {
 		wantedLeague := []Player{
 			{"Paul", 20},
 			{"Brenda", 10},
