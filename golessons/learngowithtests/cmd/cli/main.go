@@ -2,8 +2,7 @@ package main
 
 import (
 	"fmt"
-	"jpbamberg1993/learngowithtests/cli"
-	poker "jpbamberg1993/learngowithtests/http-server"
+	poker "jpbamberg1993/learngowithtests/poker"
 	"log"
 	"os"
 )
@@ -21,6 +20,6 @@ func main() {
 
 	fmt.Println("Let's play poker")
 	fmt.Println("Type '{name} wins' to record a win")
-	game := cli.NewGame(store, cli.BlindAlerterFunc(cli.StdOutAlerter))
-	cli.NewCLI(os.Stdin, os.Stdout, game).PlayPoker()
+	game := poker.NewTexasHoldem(store, poker.BlindAlerterFunc(poker.Alerter))
+	poker.NewCLI(os.Stdin, os.Stdout, game).PlayPoker()
 }

@@ -1,7 +1,7 @@
 package main
 
 import (
-	"jpbamberg1993/learngowithtests/http-server"
+	"jpbamberg1993/learngowithtests/poker"
 	"log"
 	"net/http"
 )
@@ -16,7 +16,9 @@ func main() {
 	}
 	defer closeFN()
 
-	server := poker.NewPlayerServer(store)
+	game := poker.NewTexasHoldem(store, poker.BlindAlerterFunc(poker.Alerter))
+
+	server, err := poker.NewPlayerServer(store, game)
 
 	if err = http.ListenAndServe(":5050", server); err != nil {
 		log.Fatalf("could not listen on port 5050 %v", err)
