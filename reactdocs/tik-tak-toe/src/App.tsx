@@ -16,14 +16,20 @@ function checkWinner(squares: string[]) {
 	for (let i = 0; i < winningCombinations.length; i++) {
 		const [a, b, c] = winningCombinations[i]
 		if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-			return squares[a]
+			return winningCombinations[i]
 		}
 	}
-	return ""
+	return null
+}
+
+function getGridPosition(index: number) {
+	const row = Math.floor(index / 3)
+	const column = index % 3
+	return [row+1, column+1]
 }
 
 type BoardProps = {
-	squares: any,
+	squares: string[],
 	onPlay: (squares: string[]) => void,
 	xIsNext: boolean
 }
@@ -31,14 +37,22 @@ type BoardProps = {
 function Board({ squares, onPlay, xIsNext }: BoardProps) {
 	const winner = checkWinner(squares)
 
+	// it's a tie if no winner is declared and all squares are selected
+	const isTie = winner === null && !squares.some(s => s === '')
+
 	let title
 	if (winner) {
-		title = `Winner: ${winner}`
+		title = `Winner: ${squares[winner[0]]}`
+	} else if (isTie) {
+		title = `It's a tie :(`
 	} else {
 		title = `Next player: ${xIsNext ? 'X' : 'O'}`
 	}
 
 	function handleClick(i: number) {
+		if (squares[i] || checkWinner(squares)) {
+			return
+		}
 		const newSquares = squares.slice()
 		newSquares[i] = xIsNext ? 'X' : 'O'
 		onPlay(newSquares)
@@ -48,15 +62,14 @@ function Board({ squares, onPlay, xIsNext }: BoardProps) {
 		<div>
 			<h2>{title}</h2>
 			<div className={"grid grid-cols-3 w-fit"}>
-				<button className={"border-1 h-10 w-10"} onClick={() => handleClick(0)}>{squares[0]}</button>
-				<button className={"border-1 h-10 w-10"} onClick={() => handleClick(1)}>{squares[1]}</button>
-				<button className={"border-1 h-10 w-10"} onClick={() => handleClick(2)}>{squares[2]}</button>
-				<button className={"border-1 h-10 w-10"} onClick={() => handleClick(3)}>{squares[3]}</button>
-				<button className={"border-1 h-10 w-10"} onClick={() => handleClick(4)}>{squares[4]}</button>
-				<button className={"border-1 h-10 w-10"} onClick={() => handleClick(5)}>{squares[5]}</button>
-				<button className={"border-1 h-10 w-10"} onClick={() => handleClick(6)}>{squares[6]}</button>
-				<button className={"border-1 h-10 w-10"} onClick={() => handleClick(7)}>{squares[7]}</button>
-				<button className={"border-1 h-10 w-10"} onClick={() => handleClick(8)}>{squares[8]}</button>
+				{squares.map((square, i) => {
+					return <button
+						key={i}
+						className={`border-1 h-10 w-10 ${winner?.some(w => w === i) && 'bg-green-200'}`}
+						onClick={() => handleClick(i)}>
+						{square}
+					</button>
+				})}
 			</div>
 		</div>
 	)
@@ -65,6 +78,7 @@ function Board({ squares, onPlay, xIsNext }: BoardProps) {
 function Game() {
 	const [history, setHistory] = useState<string[][]>([Array(9).fill('')])
 	const [currentMove, setCurrentMove] = useState<number>(0)
+	const [desc, setDesc] = useState(true)
 	const squares = history[currentMove]
 	const xIsNext = currentMove % 2 === 0
 
@@ -78,29 +92,54 @@ function Game() {
 		setCurrentMove(i)
 	}
 
-	const moves = history.map((_, i) => {
+	const moves = history.map((squares, i) => {
 		let title
-		if (i > 0) {
-			title = `Go to move #${i}`
-		} else {
+		let isCurrentMove = i === currentMove
+		let alteredIndex = -1
+
+		if (i !== 0) {
+			for (let j = 0; j < squares.length; j++) {
+				if (squares[j] !== history[i-1][j]) {
+					alteredIndex = j
+					break
+				}
+			}
+		}
+
+		if (i === 0) {
 			title = "Go to game start"
+		} else if (isCurrentMove) {
+			title = `You are on move #${i} position (${getGridPosition(alteredIndex).join(", ")})`
+		} else {
+			title = `Go to move #${i} position (${getGridPosition(alteredIndex).join(", ")})`
 		}
 
 		return (
 			<li key={i}>
-				<button onClick={() => jumpTo(i)}>{title}</button>
+				{isCurrentMove ? (
+					<p>{title}</p>
+				) : (
+					<button onClick={() => jumpTo(i)}>{title}</button>
+				)}
 			</li>
 		)
 	})
+
+	if (!desc) {
+		moves.reverse()
+	}
 
 	return (
 		<div className={"flex flex-row"}>
 			<div>
 				<Board squares={squares} onPlay={handlePlay} xIsNext={xIsNext} />
 			</div>
-			<ol className={"list-decimal ml-10"}>
-				{moves}
-			</ol>
+			<div>
+				<button onClick={() => setDesc(!desc)}>Toggle order</button>
+				<ol className={"list-decimal ml-10"}>
+					{moves}
+				</ol>
+			</div>
 		</div>
 	)
 }
